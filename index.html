@@ -1,0 +1,839 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Top 20 Songs</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #0b0c10;
+        --surface: #13141a;
+        --surface2: #1c1d26;
+        --border: rgba(255, 255, 255, 0.06);
+        --text: #e8e9f0;
+        --muted: #7a7b8a;
+        --accent: #c3f542;
+        --spotify: #1db954;
+        --youtube: #ff0000;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background-color: var(--bg);
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        min-height: 100vh;
+        overflow-x: hidden;
+        position: relative;
+      }
+
+      /* ── Animated background ── */
+      .bg-canvas {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
+
+      .orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(120px);
+        opacity: 0.18;
+        animation: drift linear infinite;
+      }
+      .orb1 {
+        width: 700px;
+        height: 700px;
+        background: #5c3dff;
+        top: -200px;
+        left: -100px;
+        animation-duration: 40s;
+      }
+      .orb2 {
+        width: 500px;
+        height: 500px;
+        background: #c3f542;
+        bottom: 100px;
+        right: -150px;
+        animation-duration: 55s;
+        animation-direction: reverse;
+      }
+      .orb3 {
+        width: 400px;
+        height: 400px;
+        background: #ff3d9a;
+        top: 40%;
+        left: 40%;
+        animation-duration: 48s;
+      }
+      .orb4 {
+        width: 300px;
+        height: 300px;
+        background: #1db954;
+        bottom: -100px;
+        left: 20%;
+        animation-duration: 35s;
+      }
+
+      @keyframes drift {
+        0% {
+          transform: translate(0, 0) scale(1);
+        }
+        33% {
+          transform: translate(60px, -40px) scale(1.08);
+        }
+        66% {
+          transform: translate(-40px, 50px) scale(0.94);
+        }
+        100% {
+          transform: translate(0, 0) scale(1);
+        }
+      }
+
+      /* subtle grid overlay */
+      .bg-grid {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+          linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.025) 1px,
+            transparent 1px
+          );
+        background-size: 40px 40px;
+        pointer-events: none;
+      }
+
+      /* ── Layout ── */
+      .wrapper {
+        position: relative;
+        z-index: 1;
+        max-width: 780px;
+        margin: 0 auto;
+        padding: 64px 24px 80px;
+      }
+
+      header {
+        margin-bottom: 56px;
+        text-align: center;
+      }
+
+      .tag {
+        display: inline-block;
+        font-family: "DM Sans", sans-serif;
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--accent);
+        background: rgba(195, 245, 66, 0.08);
+        border: 1px solid rgba(195, 245, 66, 0.2);
+        padding: 4px 14px;
+        border-radius: 100px;
+        margin-bottom: 20px;
+      }
+
+      h1 {
+        font-family: "Syne", sans-serif;
+        font-size: clamp(2.4rem, 6vw, 3.8rem);
+        font-weight: 800;
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+        background: linear-gradient(135deg, #fff 30%, #a0a2bb 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      header p {
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: 15px;
+        font-weight: 300;
+      }
+
+      /* ── Song list ── */
+      .list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .song-card {
+        display: grid;
+        grid-template-columns: 56px 1fr auto;
+        align-items: center;
+        gap: 16px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 12px 16px 12px 12px;
+        transition:
+          background 0.2s,
+          border-color 0.2s,
+          transform 0.2s;
+        animation: fadeUp 0.4s ease both;
+        position: relative;
+      }
+
+      .song-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.025) 0%,
+          transparent 60%
+        );
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+
+      .song-card:hover {
+        background: var(--surface2);
+        border-color: rgba(255, 255, 255, 0.12);
+        transform: translateY(-2px);
+      }
+
+      .song-card:hover::before {
+        opacity: 1;
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(18px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* stagger */
+      .song-card:nth-child(1) {
+        animation-delay: 0.04s;
+      }
+      .song-card:nth-child(2) {
+        animation-delay: 0.08s;
+      }
+      .song-card:nth-child(3) {
+        animation-delay: 0.12s;
+      }
+      .song-card:nth-child(4) {
+        animation-delay: 0.16s;
+      }
+      .song-card:nth-child(5) {
+        animation-delay: 0.2s;
+      }
+      .song-card:nth-child(6) {
+        animation-delay: 0.24s;
+      }
+      .song-card:nth-child(7) {
+        animation-delay: 0.28s;
+      }
+      .song-card:nth-child(8) {
+        animation-delay: 0.32s;
+      }
+      .song-card:nth-child(9) {
+        animation-delay: 0.36s;
+      }
+      .song-card:nth-child(10) {
+        animation-delay: 0.4s;
+      }
+      .song-card:nth-child(11) {
+        animation-delay: 0.44s;
+      }
+      .song-card:nth-child(12) {
+        animation-delay: 0.48s;
+      }
+      .song-card:nth-child(13) {
+        animation-delay: 0.52s;
+      }
+      .song-card:nth-child(14) {
+        animation-delay: 0.56s;
+      }
+      .song-card:nth-child(15) {
+        animation-delay: 0.6s;
+      }
+      .song-card:nth-child(16) {
+        animation-delay: 0.64s;
+      }
+      .song-card:nth-child(17) {
+        animation-delay: 0.68s;
+      }
+      .song-card:nth-child(18) {
+        animation-delay: 0.72s;
+      }
+      .song-card:nth-child(19) {
+        animation-delay: 0.76s;
+      }
+      .song-card:nth-child(20) {
+        animation-delay: 0.8s;
+      }
+
+      /* ── Album art ── */
+      .art-wrap {
+        position: relative;
+        width: 56px;
+        height: 56px;
+        flex-shrink: 0;
+      }
+
+      .art-wrap img {
+        width: 56px;
+        height: 56px;
+        border-radius: 8px;
+        object-fit: cover;
+        display: block;
+        background: var(--surface2);
+      }
+
+      .num {
+        position: absolute;
+        bottom: -5px;
+        right: -7px;
+        font-family: "Syne", sans-serif;
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--bg);
+        background: var(--accent);
+        border-radius: 4px;
+        padding: 1px 5px;
+        line-height: 1.4;
+      }
+
+      /* ── Song info ── */
+      .info {
+        min-width: 0;
+      }
+
+      .title {
+        font-family: "Syne", sans-serif;
+        font-size: 14.5px;
+        font-weight: 700;
+        color: var(--text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .romanized {
+        font-family: "DM Sans", sans-serif;
+        font-size: 11.5px;
+        font-weight: 400;
+        color: var(--accent);
+        opacity: 0.8;
+        margin-top: 1px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .artist {
+        font-size: 12.5px;
+        color: var(--muted);
+        margin-top: 3px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* ── Platform buttons ── */
+      .actions {
+        display: flex;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+
+      .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        text-decoration: none;
+        cursor: pointer;
+        transition:
+          transform 0.15s ease,
+          background 0.15s ease,
+          border-color 0.15s ease,
+          box-shadow 0.15s ease;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 2;
+      }
+
+      .btn:hover {
+        transform: scale(1.18) translateY(-1px);
+      }
+
+      .btn-spotify {
+        background: rgba(29, 185, 84, 0.12);
+        border: 1px solid rgba(29, 185, 84, 0.3);
+      }
+      .btn-spotify:hover {
+        background: rgba(29, 185, 84, 0.35);
+        border-color: rgba(29, 185, 84, 0.7);
+        box-shadow: 0 0 14px rgba(29, 185, 84, 0.4);
+      }
+
+      .btn-youtube {
+        background: rgba(255, 0, 0, 0.1);
+        border: 1px solid rgba(255, 0, 0, 0.25);
+      }
+      .btn-youtube:hover {
+        background: rgba(255, 0, 0, 0.3);
+        border-color: rgba(255, 0, 0, 0.65);
+        box-shadow: 0 0 14px rgba(255, 0, 0, 0.35);
+      }
+
+      .btn svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      /* ── Footer ── */
+      footer {
+        text-align: center;
+        margin-top: 56px;
+        color: var(--muted);
+        font-size: 12px;
+        letter-spacing: 0.04em;
+      }
+
+      footer span {
+        color: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-canvas">
+      <div class="orb orb1"></div>
+      <div class="orb orb2"></div>
+      <div class="orb orb3"></div>
+      <div class="orb orb4"></div>
+    </div>
+    <div class="bg-grid"></div>
+
+    <div class="wrapper">
+      <header>
+        <div class="tag">Personal Playlist</div>
+        <h1>My Top 20 Songs</h1>
+        <p>Not in any specific order.</p>
+      </header>
+
+      <div class="list" id="list"></div>
+
+      <footer><span>♥</span> &nbsp;·&nbsp; Click the icons to stream</footer>
+    </div>
+
+    <!-- SVG icons inline -->
+    <svg style="display: none" xmlns="http://www.w3.org/2000/svg">
+      <symbol id="icon-spotify" viewBox="0 0 24 24">
+        <path
+          fill="#1DB954"
+          d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm5.5 17.3a.75.75 0 01-1.03.25c-2.82-1.72-6.37-2.11-10.55-1.16a.75.75 0 01-.34-1.46c4.57-1.04 8.49-.6 11.66 1.34a.75.75 0 01.26 1.03zm1.47-3.27a.94.94 0 01-1.29.31c-3.23-1.98-8.15-2.56-11.97-1.4a.94.94 0 01-.54-1.8c4.37-1.32 9.79-.68 13.5 1.6a.94.94 0 01.3 1.29zm.13-3.4c-3.87-2.3-10.25-2.51-13.94-1.39a1.12 1.12 0 01-.65-2.15c4.24-1.28 11.29-1.04 15.73 1.6a1.12 1.12 0 01-1.14 1.94z"
+        />
+      </symbol>
+      <symbol id="icon-youtube" viewBox="0 0 24 24">
+        <path
+          fill="#FF0000"
+          d="M23.5 6.2a3.02 3.02 0 00-2.12-2.13C19.54 3.6 12 3.6 12 3.6s-7.54 0-9.38.47A3.02 3.02 0 00.5 6.2 31.6 31.6 0 000 12a31.6 31.6 0 00.5 5.8 3.02 3.02 0 002.12 2.13C4.46 20.4 12 20.4 12 20.4s7.54 0 9.38-.47a3.02 3.02 0 002.12-2.13A31.6 31.6 0 0024 12a31.6 31.6 0 00-.5-5.8zM9.75 15.5V8.5l6.25 3.5-6.25 3.5z"
+        />
+      </symbol>
+    </svg>
+
+    <script>
+      const songs = [
+        {
+          title: "GATE OF STEINER",
+          romanized: null,
+          artist: "佐々木恵梨 (Sasaki Eri)",
+          art: "https://i.scdn.co/image/ab67616d0000b273b0f5b5f0d1e5a7b0b6f7c9c1",
+          artFallback:
+            "https://lastfm.freetls.fastly.net/i/u/174s/2a96cbd8b46e442fc41c2b86628214f5.png",
+          spotify: "https://open.spotify.com/track/1ezwbmmrYZVfXVLEoiqLnk",
+          youtube:
+            "https://www.youtube.com/results?search_query=GATE+OF+STEINER+Sasaki+Eri",
+        },
+        {
+          title: "One More Time, One More Chance",
+          romanized: null,
+          artist: "山崎まさよし (Yamazaki Masayoshi)",
+          art: "https://i.scdn.co/image/ab67616d0000b273e0e6a3a5a34ae4b32c6f09b2",
+          artFallback:
+            "https://upload.wikimedia.org/wikipedia/en/thumb/3/31/One_More_Time%2C_One_More_Chance.jpg/220px-One_More_Time%2C_One_More_Chance.jpg",
+          spotify:
+            "https://open.spotify.com/search/One%20More%20Time%20One%20More%20Chance%20Yamazaki%20Masayoshi",
+          youtube:
+            "https://www.youtube.com/results?search_query=One+More+Time+One+More+Chance+%E5%B1%B1%E5%B4%8E%E3%81%BE%E3%81%95%E3%82%88%E3%81%97",
+        },
+        {
+          title: "We Won't Be Alone",
+          romanized: null,
+          artist: "Feint, Laura Brehm",
+          art: "https://i.scdn.co/image/ab67616d0000b273c2b3e9f3e8f7b3d2a1e4c5f6",
+          artFallback: "https://f4.bcbits.com/img/a1234567890_10.jpg",
+          spotify:
+            "https://open.spotify.com/search/We%20Won't%20Be%20Alone%20Feint%20Laura%20Brehm",
+          youtube:
+            "https://www.youtube.com/results?search_query=Feint+Laura+Brehm+We+Won%27t+Be+Alone",
+        },
+        {
+          title: "君の知らない物語",
+          romanized: "Kimi no Shiranai Monogatari",
+          artist: "supercell",
+          art: "https://i.scdn.co/image/ab67616d00001e025e1df8ec8f6466df02ca9864",
+          artFallback:
+            "https://upload.wikimedia.org/wikipedia/en/thumb/7/7f/Supercell_-_Kimi_no_Shiranai_Monogatari.jpg/220px-Supercell_-_Kimi_no_Shiranai_Monogatari.jpg",
+          spotify: "https://open.spotify.com/track/1X1nr03YwYlwGxWHolbwzw",
+          youtube:
+            "https://www.youtube.com/results?search_query=Kimi+no+Shiranai+Monogatari+supercell",
+        },
+        {
+          title: "No Celestial / Creatures",
+          romanized: null,
+          artist: "LE SSERAFIM",
+          art: "https://i.scdn.co/image/ab67616d0000b273le_sserafim_antifragile",
+          artFallback:
+            "https://upload.wikimedia.org/wikipedia/en/thumb/e/e8/LE_SSERAFIM_-_Antifragile.png/220px-LE_SSERAFIM_-_Antifragile.png",
+          spotify:
+            "https://open.spotify.com/search/No%20Celestial%20LE%20SSERAFIM",
+          youtube:
+            "https://www.youtube.com/results?search_query=LE+SSERAFIM+No+Celestial+Creatures",
+        },
+        {
+          title: "High Hopes",
+          romanized: null,
+          artist: "Panic! At The Disco",
+          art: "https://i.scdn.co/image/ab67616d0000b2731ee6ed06e5ad8bb9f15e0ac8",
+          artFallback:
+            "https://upload.wikimedia.org/wikipedia/en/thumb/d/d1/Pray_for_the_Wicked_album_cover.jpg/220px-Pray_for_the_Wicked_album_cover.jpg",
+          spotify: "https://open.spotify.com/track/1OOtq8tRnDOkFoJZvgNR5E",
+          youtube:
+            "https://www.youtube.com/results?search_query=Panic+At+The+Disco+High+Hopes",
+        },
+        {
+          title: "追い風トラベラーズ",
+          romanized: "Oikaze Travellers",
+          artist: "フランシュシュ (Franchouchou)",
+          art: "https://i.scdn.co/image/ab67616d0000b2738716a6ef0fd6db7f6eafc356",
+          artFallback:
+            "https://lastfm.freetls.fastly.net/i/u/174s/2a96cbd8b46e442fc41c2b86628214f5.png",
+          spotify:
+            "https://open.spotify.com/search/%E8%BF%BD%E3%81%84%E9%A2%A8%E3%83%88%E3%83%A9%E3%83%99%E3%83%A9%E3%83%BC%E3%82%BA%20Franchouchou",
+          youtube:
+            "https://www.youtube.com/results?search_query=%E8%BF%BD%E3%81%84%E9%A2%A8%E3%83%88%E3%83%A9%E3%83%99%E3%83%A9%E3%83%BC%E3%82%BA+Franchouchou",
+        },
+        {
+          title: "Dead Man Walking",
+          romanized: null,
+          artist: "Grant, ellis",
+          art: "https://i.scdn.co/image/ab67616d0000b273grant_ellis_deadman",
+          artFallback:
+            "https://lastfm.freetls.fastly.net/i/u/174s/2a96cbd8b46e442fc41c2b86628214f5.png",
+          spotify:
+            "https://open.spotify.com/search/Dead%20Man%20Walking%20Grant%20ellis",
+          youtube:
+            "https://www.youtube.com/results?search_query=Dead+Man+Walking+Grant+ellis",
+        },
+        {
+          title: "POP/STARS",
+          romanized: null,
+          artist: "K/DA",
+          art: "https://i.scdn.co/image/ab67616d0000b2736c94c09e7a71ff48e1dba8e7",
+          artFallback:
+            "https://upload.wikimedia.org/wikipedia/en/thumb/6/6b/KDA_Pop_Stars.jpg/220px-KDA_Pop_Stars.jpg",
+          spotify: "https://open.spotify.com/search/POP%2FSTARS%20KDA",
+          youtube: "https://www.youtube.com/results?search_query=KDA+POP+STARS",
+        },
+        {
+          title: "Crossfire",
+          romanized: null,
+          artist: "Stephen",
+          art: "https://i.scdn.co/image/ab67616d0000b273crossfire_stephen",
+          artFallback:
+            "https://lastfm.freetls.fastly.net/i/u/174s/2a96cbd8b46e442fc41c2b86628214f5.png",
+          spotify: "https://open.spotify.com/search/Crossfire%20Stephen",
+          youtube:
+            "https://www.youtube.com/results?search_query=Crossfire+Stephen+song",
+        },
+        {
+          title: "We Are Young",
+          romanized: null,
+          artist: "fun., Janelle Monáe",
+          art: "https://i.scdn.co/image/ab67616d0000b273fun_aim_and_ignite",
+          artFallback:
+            "https://upload.wikimedia.org/wikipedia/en/thumb/c/ca/Fun_Some_Nights.jpg/220px-Fun_Some_Nights.jpg",
+          spotify:
+            "https://open.spotify.com/search/We%20Are%20Young%20fun.%20Janelle%20Monae",
+          youtube:
+            "https://www.youtube.com/results?search_query=fun.+We+Are+Young+ft+Janelle+Monae",
+        },
+        {
+          title: "Emergency",
+          romanized: null,
+          artist: "Pegboard Nerds",
+          art: "https://i.scdn.co/image/ab67616d0000b273pegboard_nerds_emergency",
+          artFallback:
+            "https://lastfm.freetls.fastly.net/i/u/174s/2a96cbd8b46e442fc41c2b86628214f5.png",
+          spotify:
+            "https://open.spotify.com/search/Emergency%20Pegboard%20Nerds",
+          youtube:
+            "https://www.youtube.com/results?search_query=Pegboard+Nerds+Emergency",
+        },
+        {
+          title: "It's My Life",
+          romanized: null,
+          artist: "Bon Jovi",
+          art: "https://i.scdn.co/image/ab67616d0000b273bonjovi_crush",
+          artFallback:
+            "https://upload.wikimedia.org/wikipedia/en/thumb/6/62/Crush_BonJovi.jpg/220px-Crush_BonJovi.jpg",
+          spotify:
+            "https://open.spotify.com/search/It's%20My%20Life%20Bon%20Jovi",
+          youtube:
+            "https://www.youtube.com/results?search_query=Bon+Jovi+It%27s+My+Life",
+        },
+        {
+          title: "Crossroad",
+          romanized: null,
+          artist: "Au5, Danyka Nadeau",
+          art: "https://i.scdn.co/image/ab67616d0000b273au5_crossroad",
+          artFallback:
+            "https://lastfm.freetls.fastly.net/i/u/174s/2a96cbd8b46e442fc41c2b86628214f5.png",
+          spotify:
+            "https://open.spotify.com/search/Crossroad%20Au5%20Danyka%20Nadeau",
+          youtube:
+            "https://www.youtube.com/results?search_query=Au5+Danyka+Nadeau+Crossroad",
+        },
+        {
+          title: "Sing My Pleasure",
+          romanized: null,
+          artist: "ヴィヴィ (Vo. 八木海莉 / Yagi Kairi)",
+          art: "https://i.scdn.co/image/ab67616d0000b273vivy_sing_my_pleasure",
+          artFallback:
+            "https://lastfm.freetls.fastly.net/i/u/174s/2a96cbd8b46e442fc41c2b86628214f5.png",
+          spotify:
+            "https://open.spotify.com/search/Sing%20My%20Pleasure%20Vivy",
+          youtube:
+            "https://www.youtube.com/results?search_query=Sing+My+Pleasure+Vivy+Yagi+Kairi",
+        },
+        {
+          title: "Dynasties & Dystopia",
+          romanized: null,
+          artist: "Denzel Curry, Gizzle, Bren Joy · Arcane",
+          art: "https://i.scdn.co/image/ab67616d0000b273arcane_dynasties",
+          artFallback:
+            "https://upload.wikimedia.org/wikipedia/en/thumb/5/54/Arcane_League_of_Legends.jpg/220px-Arcane_League_of_Legends.jpg",
+          spotify:
+            "https://open.spotify.com/search/Dynasties%20Dystopia%20Denzel%20Curry%20Arcane",
+          youtube:
+            "https://www.youtube.com/results?search_query=Dynasties+Dystopia+Denzel+Curry+Arcane",
+        },
+        {
+          title: "ギラギラ",
+          romanized: "Gira Gira",
+          artist: "Ado",
+          art: "https://i.scdn.co/image/ab67616d0000b273ado_gira_gira",
+          artFallback:
+            "https://upload.wikimedia.org/wikipedia/en/thumb/e/e2/Ado_-_Kyogen.jpg/220px-Ado_-_Kyogen.jpg",
+          spotify:
+            "https://open.spotify.com/search/%E3%82%AE%E3%83%A9%E3%82%AE%E3%83%A9%20Ado",
+          youtube:
+            "https://www.youtube.com/results?search_query=%E3%82%AE%E3%83%A9%E3%82%AE%E3%83%A9+Ado",
+        },
+        {
+          title: "Run",
+          romanized: null,
+          artist: "Joji",
+          art: "https://i.scdn.co/image/ab67616d0000b273joji_nectar",
+          artFallback:
+            "https://upload.wikimedia.org/wikipedia/en/thumb/c/c5/Joji_-_Nectar.png/220px-Joji_-_Nectar.png",
+          spotify: "https://open.spotify.com/search/Run%20Joji",
+          youtube:
+            "https://www.youtube.com/results?search_query=Joji+Run+official",
+        },
+        {
+          title: "Youngblood",
+          romanized: null,
+          artist: "5 Seconds Of Summer",
+          art: "https://i.scdn.co/image/ab67616d0000b2735sos_youngblood",
+          artFallback:
+            "https://upload.wikimedia.org/wikipedia/en/thumb/b/b5/5SOS_Youngblood_album_cover.jpg/220px-5SOS_Youngblood_album_cover.jpg",
+          spotify:
+            "https://open.spotify.com/search/Youngblood%205%20Seconds%20of%20Summer",
+          youtube:
+            "https://www.youtube.com/results?search_query=5+Seconds+of+Summer+Youngblood",
+        },
+        {
+          title: "I Remember U",
+          romanized: null,
+          artist: "Cartoon, Jüri Pootsmann",
+          art: "https://i.scdn.co/image/ab67616d0000b273cartoon_irememberu",
+          artFallback:
+            "https://lastfm.freetls.fastly.net/i/u/174s/2a96cbd8b46e442fc41c2b86628214f5.png",
+          spotify:
+            "https://open.spotify.com/search/I%20Remember%20U%20Cartoon%20Juri%20Pootsmann",
+          youtube:
+            "https://www.youtube.com/results?search_query=Cartoon+Juri+Pootsmann+I+Remember+U",
+        },
+      ];
+
+      // Better album art via MusicBrainz Cover Art / reliable CDN sources
+      const artOverrides = {
+        0: "https://wsrv.nl/?url=https://coverartarchive.org/release/steinsgate0-eri-sasaki/front&w=120&h=120&fit=cover&default=https://lastfm.freetls.fastly.net/i/u/174s/2a96cbd8b46e442fc41c2b86628214f5.png",
+      };
+
+      // Use a proxy that fetches real covers: musicbrainz / iTunes search API
+      // iTunes Search API (CORS-friendly, public)
+      const itunesQueries = [
+        "GATE OF STEINER Sasaki Eri",
+        "One More Time One More Chance Yamazaki Masayoshi",
+        "We Wont Be Alone Feint Laura Brehm",
+        "Kimi no Shiranai Monogatari supercell",
+        "No Celestial LE SSERAFIM",
+        "High Hopes Panic At The Disco",
+        "Oikaze Travellers Franchouchou",
+        "Dead Man Walking Grant ellis",
+        "POP STARS KDA",
+        "Crossfire Stephen",
+        "We Are Young fun. Janelle Monae",
+        "Emergency Pegboard Nerds",
+        "Its My Life Bon Jovi",
+        "Crossroad Au5 Danyka Nadeau",
+        "Sing My Pleasure Vivy",
+        "Dynasties Dystopia Denzel Curry Arcane",
+        "Gira Gira Ado",
+        "Run Joji",
+        "Youngblood 5 Seconds Of Summer",
+        "I Remember U Cartoon Juri Pootsmann",
+      ];
+
+      async function fetchArt(query) {
+        try {
+          const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&limit=1`;
+          const r = await fetch(url);
+          const d = await r.json();
+          if (d.results && d.results[0]) {
+            return d.results[0].artworkUrl100.replace("100x100", "300x300");
+          }
+        } catch (e) {}
+        return null;
+      }
+
+      function makeCard(song, idx) {
+        const card = document.createElement("div");
+        card.className = "song-card";
+
+        const artWrap = document.createElement("div");
+        artWrap.className = "art-wrap";
+
+        const img = document.createElement("img");
+        img.src =
+          'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="56" height="56"><rect width="56" height="56" rx="8" fill="%231c1d26"/></svg>';
+        img.alt = song.title;
+        img.loading = "lazy";
+
+        // Load iTunes art
+        fetchArt(itunesQueries[idx]).then((url) => {
+          if (url) {
+            const t = new Image();
+            t.onload = () => {
+              img.src = url;
+              if (song.artist === "supercell") {
+                img.src = song.art;
+              }
+            };
+            t.src = url;
+          }
+        });
+
+        if (song.artist === "フランシュシュ (Franchouchou)") {
+            img.src = song.art;
+        }
+
+        const num = document.createElement("span");
+        num.className = "num";
+        num.textContent = String(idx + 1).padStart(2, "0");
+
+        artWrap.appendChild(img);
+        artWrap.appendChild(num);
+
+        const info = document.createElement("div");
+        info.className = "info";
+
+        const title = document.createElement("div");
+        title.className = "title";
+        title.textContent = song.title;
+
+        info.appendChild(title);
+
+        if (song.romanized) {
+          const rom = document.createElement("div");
+          rom.className = "romanized";
+          rom.textContent = song.romanized;
+          info.appendChild(rom);
+        }
+
+        const artist = document.createElement("div");
+        artist.className = "artist";
+        artist.textContent = song.artist;
+        info.appendChild(artist);
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+
+        const spotifyBtn = document.createElement("a");
+        spotifyBtn.className = "btn btn-spotify";
+        spotifyBtn.href = song.spotify;
+        spotifyBtn.target = "_blank";
+        spotifyBtn.rel = "noopener noreferrer";
+        spotifyBtn.title = "Open on Spotify";
+        spotifyBtn.innerHTML = '<svg><use href="#icon-spotify"/></svg>';
+
+        const ytBtn = document.createElement("a");
+        ytBtn.className = "btn btn-youtube";
+        ytBtn.href = song.youtube;
+        ytBtn.target = "_blank";
+        ytBtn.rel = "noopener noreferrer";
+        ytBtn.title = "Search on YouTube";
+        ytBtn.innerHTML = '<svg><use href="#icon-youtube"/></svg>';
+
+        actions.appendChild(spotifyBtn);
+        actions.appendChild(ytBtn);
+
+        card.appendChild(artWrap);
+        card.appendChild(info);
+        card.appendChild(actions);
+
+        return card;
+      }
+
+      const list = document.getElementById("list");
+      songs.forEach((song, i) => {
+        list.appendChild(makeCard(song, i));
+      });
+    </script>
+  </body>
+</html>
